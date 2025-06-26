@@ -30,14 +30,15 @@ We've discovered a fundamental disconnect between the Claude Code SDK's OAuth sy
 By mounting the host's `~/.claude` directory (not just `~/.claude.json`), we can share the CLI's OAuth credentials with the container. The key file is `~/.claude/.credentials.json` which contains the OAuth tokens from the CLI's interactive authentication.
 
 ### Confirmed Working:
-- ✅ Sonnet model: `curl -X POST http://localhost:4000/v1/chat/completions -d '{"model": "sonnet", ...}'`
-- ✅ Opus model: Working correctly
-- ⚠️ Haiku model: Currently disabled upstream in Claude Code (as of 6/20/25)
+- ✅ Sonnet model
+- ✅ Opus model
+- ✅ Haiku model: requires full `claude-3-5-haiku-20241022`, not `haiku`
 
 ### Model Names:
 - `sonnet`, `opus`, and `default` are aliases for the latest versions (like `:latest` tags)
-- Haiku previously required exact model name specification (e.g., `claude-3-5-haiku-20240307`)
+- Haiku requires exact model name specification (e.g., `claude-3-5-haiku-20241022`)
 - TODO: Check for updated haiku model name when re-enabled upstream
+- You could probably customize this to use older Sonet and Opus models
 
 ## Potential Production Solutions
 

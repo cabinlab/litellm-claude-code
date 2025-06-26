@@ -4,13 +4,13 @@ This guide explains how to authenticate the Claude CLI within the Docker contain
 
 ## Overview
 
-The LiteLLM Claude Code Provider requires Claude CLI authentication to work. We've integrated the authentication flow directly into the LiteLLM web interface for a seamless experience.
+⛔ ***Not Working*** The LiteLLM Claude Code Provider requires Claude CLI authentication to work. ~~We've integrated the authentication flow directly into the LiteLLM web interface for a seamless experience~~
 
 ## First-Time Setup
 
-### Web Authentication (Currently Limited)
+### Web Authentication (Currently 👎)
 
-**Note**: The web authentication interface at `http://localhost:4000/auth` correctly displays authentication status but the interactive login flow is not yet fully functional. Please use the CLI method below for authentication.
+⚠️ The web authentication interface at `http://localhost:4000/auth` correctly displays authentication status but the interactive login flow is not yet fully functional. Please use the CLI method below for authentication.
 
 ### CLI Authentication (Recommended)
 
@@ -67,7 +67,8 @@ After authentication, you can:
 
 - Authentication credentials are stored in a Docker volume named `claude-auth`
 - Credentials persist across container restarts
-- To reset authentication, remove the volume: `docker volume rm litellm-claude_claude-auth`
+- To remove authentication, delete the volume: `docker volume rm litellm-claude_claude-auth`
+- You can also use /login /logout slash commands from within Claude Code if there's only one session
 
 ## Troubleshooting
 
@@ -98,5 +99,4 @@ Once authenticated, you can use:
 - `sonnet` - Claude Sonnet (latest)
 - `opus` - Claude Opus (latest)
 - `default` - Default model
-
-**Note:** Haiku model is temporarily disabled upstream in Claude Code. When restored, it will be available as `haiku`.
+- `claude-3-5-haiku-20240307` - Claude Haiku (latest, probably)

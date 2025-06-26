@@ -3,7 +3,6 @@
 .env.local
 .env.production
 .env.staging
-docker-compose.override.yml
 
 # Logs
 *.log
@@ -104,10 +103,14 @@ temp/
 credentials.*
 
 # OAuth tokens and Claude credentials
+.claude 
 .claude.json
 claude.json
 **/claude.json
 .claude_code/
 
-# Test output files
-test_streaming.py
+# Test files and directories
+tests/
+test_*.py
+test-*.sh
+test_*.sh

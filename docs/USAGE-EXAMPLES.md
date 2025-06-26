@@ -15,7 +15,7 @@ client = OpenAI(
 
 # Use it exactly like OpenAI
 response = client.chat.completions.create(
-    model="sonnet",  # or "opus", "claude-3-5-haiku-20240307", "default"
+    model="sonnet",  # or "opus", "claude-3-5-haiku-20241022", "default"
     messages=[
         {"role": "user", "content": "Hello, Claude!"}
     ]
@@ -109,7 +109,7 @@ main();
 3. **Models**: Use exactly these names:
    - `sonnet` (Claude Sonnet 4)
    - `opus` (Claude Opus 4)
-   - `claude-3-5-haiku-20240307` (Claude 3.5 Haiku)
+   - `claude-3-5-haiku-20241022` (Claude 3.5 Haiku)
    - `default` (Opus 4 with Sonnet 4 fallback)
 
 4. **Features Supported**:
@@ -119,9 +119,7 @@ main();
 
 5. **Features NOT Supported**:
    - Embeddings
-   - Function calling
-   - Image generation
-   - Legacy completions endpoint
+
 
 ## Environment Variables for Your App
 

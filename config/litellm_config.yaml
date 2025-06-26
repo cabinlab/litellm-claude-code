@@ -2,21 +2,22 @@ model_list:
   - model_name: "sonnet"
     litellm_params:
       model: "claude-code-sdk/sonnet"
+
+  # Legacy model name required as of June 26, 2025  
+  - model_name: "claude-3-5-haiku-20241022"
+    litellm_params:
+      model: "claude-code-sdk/claude-3-5-haiku-20241022"
   
-  # Haiku model temporarily disabled - uncomment when available
+  # Haiku naming convention doesn't work as expected
   # - model_name: "haiku"
   #   litellm_params:
   #     model: "claude-code-sdk/haiku"
-  
-  # Legacy model name - remove when haiku is available  
-  # - model_name: "claude-3-5-haiku-20240307"
-  #   litellm_params:
-  #     model: "claude-code-sdk/claude-3-5-haiku-20240307"
-  
+
   - model_name: "opus"
     litellm_params:
       model: "claude-code-sdk/opus"
-  
+
+  # Starts with Opus, then switches to sonnet to avoid rate limits
   - model_name: "default"
     litellm_params:
       model: "claude-code-sdk/default"

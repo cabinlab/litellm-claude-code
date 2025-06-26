@@ -23,9 +23,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir claude-code-sdk
 
 # Copy provider code
-COPY claude_code_provider.py /app/claude_code_provider.py
-COPY custom_handler.py /app/custom_handler.py
+COPY providers/ /app/providers/
 COPY config/ /app/config/
+COPY custom_handler.py /app/custom_handler.py
+COPY custom_handler.py /app/config/custom_handler.py
 
 # Copy startup script, auth integration, and entrypoint
 COPY startup.py /app/startup.py

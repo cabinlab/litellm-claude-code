@@ -70,7 +70,7 @@ python test_provider.py
 
 - `sonnet` - Claude Sonnet 4
 - `opus` - Claude Opus 4
-- `claude-3-5-haiku-20240307` - Claude 3.5 Haiku
+- `claude-3-5-haiku-20241022` - Claude 3.5 Haiku
 - `default` - Default model with automatic fallback
 
 ## Key Configuration Files
