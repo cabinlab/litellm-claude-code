@@ -18,6 +18,9 @@ fi
 # Set Python path
 export PYTHONPATH="/app:$PYTHONPATH"
 
+# Set Prisma cache directory for the claude user
+export PRISMA_PYTHON_CACHE_DIR="/home/claude/.cache/prisma-python"
+
 # Start LiteLLM via startup.py
 echo "Starting LiteLLM server..."
 exec python /app/startup.py

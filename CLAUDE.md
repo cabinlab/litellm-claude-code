@@ -12,7 +12,7 @@ The project implements a custom LiteLLM provider that:
 1. Receives OpenAI-format API requests on port 4000
 2. Translates them to Claude Code SDK calls using OAuth authentication
 3. Returns responses in OpenAI-compatible format
-4. Supports streaming, all Claude models, and standard chat completions
+4. Supports streaming*, all Claude models, and standard chat completions *Claude Code streams are chunk/answer-based, which is not the same "streaming" provided by the Anthropic API.
 
 Key components:
 - `claude_code_provider.py`: Custom LiteLLM provider implementing the bridge

@@ -9,9 +9,23 @@ RUN pip install --no-cache-dir \
     prisma \
     aiofiles
 
+# Set up Prisma cache directory for claude user
+ENV PRISMA_PYTHON_CACHE_DIR="/home/claude/.cache/prisma-python"
+RUN mkdir -p /home/claude/.cache/prisma-python && \
+    chown -R claude:claude /home/claude/.cache && \
+    # Create a symlink from root's cache to claude's cache as a fallback
+    mkdir -p /root/.cache && \
+    ln -s /home/claude/.cache/prisma-python /root/.cache/prisma-python
+
 # Generate Prisma client as root to avoid permission issues later
+# First, ensure we're using the venv pip
+ENV PATH="/opt/venv/bin:$PATH"
 RUN cd /opt/venv/lib/python3.11/site-packages/litellm/proxy && \
-    prisma generate || true
+    PRISMA_PYTHON_CACHE_DIR=/home/claude/.cache/prisma-python prisma generate && \
+    # Ensure the claude user can access Prisma binaries
+    chown -R claude:claude /home/claude/.cache/prisma-python && \
+    chown -R claude:claude /opt/venv/lib/python3.11/site-packages/prisma && \
+    chmod -R 755 /opt/venv/lib/python3.11/site-packages/prisma
 
 # Copy application code with proper ownership
 COPY --chown=claude:claude providers/ /app/providers/

@@ -9,12 +9,13 @@ import subprocess
 # Add paths for custom providers
 sys.path.append('/app')
 
+# Ensure we're using the venv Python
+os.environ['PATH'] = '/opt/venv/bin:' + os.environ.get('PATH', '')
+
 # The custom provider will be loaded via the YAML config
 print("Starting LiteLLM with custom provider configuration...")
 
-# Skip Prisma generation when running as non-root user
-print("Skipping Prisma client generation (running as non-root user)")
-
+# Prisma client is pre-generated during Docker build
 print("Starting LiteLLM proxy with YAML config...")
 
 if __name__ == "__main__":
