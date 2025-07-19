@@ -1,90 +1,146 @@
 # LiteLLM Claude Code Provider
 
-A generic LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs.
+A LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs.
 
 ## Features
 
 - ✅ **Claude Pro/Max Plan**: Uses Claude Code's OAuth authentication (no API keys needed)
-- ✅ **Claude Code <--> OpenAI Key**: Use Claude Code in apps expecting OpenAI API keys
-- **Docker Deployment**: LiteLLM + Claude Code in single container
-- **Model Selection**: Supports all Claude models [ ***Opus*** | ***Sonnet*** | ***Haiku*** ]
-- **Standard Interface**: Drop-in replacement for OpenAI API
-- **Configurable**: Update models without code changes
+- ✅ **OpenAI API Compatibility**: Use Claude Code in apps expecting OpenAI API keys
+- ✅ **Docker Deployment**: LiteLLM + Claude Code SDK in a single container
+- ✅ **Model Selection**: Supports all Claude models (Opus, Sonnet, Haiku)
+- ✅ **Standard Interface**: Drop-in replacement for OpenAI API
+- ✅ **PostgreSQL State Management**: Persistent model configurations and usage tracking
 
-## Quick Start
+## Quick Start (Claude Pro/Max Users)
 
 ### Prerequisites
 - Docker and Docker Compose
+- Claude Pro or Max subscription
 - A master key for API authentication (required)
 
 ### Setup
 
-1. **Set your main key** (REQUIRED - see [docs/SECURITY.md](docs/SECURITY.md)):
+1. **Clone the repository**:
    ```bash
-   # LiteLLM requires these keys to start with with 'sk-'
-   
-   # For development, DIY a simple key 
-   export LITELLM_MASTER_KEY="sk-dev-test-key"
-
-   # Or generate a secure key
-   export LITELLM_MASTER_KEY="sk-$(openssl rand -hex 32)"
-
+   git clone https://github.com/cabinlab/litellm-claude-code.git
+   cd litellm-claude-code
    ```
 
-2. Start the services:
+2. **Configure environment variables**:
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   ```
+
+3. **Set your master key** (REQUIRED):
+   ```bash
+   # Edit .env and update LITELLM_MASTER_KEY
+   # For development, change to something like sk-9umbers-and-letters-and-junk
+   LITELLM_MASTER_KEY=sk-your-desired-custom-key
+   
+   # For production, generate a secure key:
+   LITELLM_MASTER_KEY=sk-$(openssl rand -hex 32)
+   ```
+
+4. **Get your Claude OAuth token** (on your host machine):
+   ```bash
+   # If you don't have the Claude CLI installed:
+   npm install -g @anthropic-ai/claude-code
+   
+   # Generate a long-lived token
+   claude setup-token
+
+   # Follow the web-based auth flow and copy the token that starts with
+   sk-ant-oat01-
+   ```
+
+
+5. **Add the token to your .env file**:
+   ```bash
+   # Edit .env and add your token:
+   CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-your-token-here
+   ```
+
+6. **Start the services**:
    ```bash
    docker-compose up -d
    ```
 
-3. **Authenticate Claude** (first-time only):
-   
-   Using Docker exec to authenticate:
-   ```bash
-   # Enter the container
-   docker exec -it litellm-claude-litellm-1 /bin/bash
-   
-   # Run claude to check authentication (will prompt if needed)
-   claude
-   
-   # Follow the prompts to authenticate via Pro/Max Plan (API might still work?)
-   
-   # Exit the container
-   exit
+7. **Verify it's working**:
+
+   ### Web UI
    ```
+   http://localhost:4000/ui/ --> Test Key
+   ```
+
+   ### Terminal
+   ```bash
+   # Check health (replace with your LITELLM_MASTER_KEY)
+   curl http://localhost:4000/health -H "Authorization: Bearer sk-your-desired-custom-key"
    
-   - ~~Navigate to `http://localhost:4000/auth`~~
-   - ~~Click "Start Authentication"~~
-   - ~~Follow the OAuth flow in your browser~~
-   - ~~See [AUTH_SETUP.md](AUTH_SETUP.md) for detailed instructions~~
+   # List models
+   curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"
+   ```
 
-4. The API is now available at `http://localhost:4000/v1`
+The API is now available at `http://localhost:4000/v1`
 
-### Use with OpenAI Python Client
+## Usage Examples
+
+### OpenAI Python Client
 
 ```python
-import openai
+from openai import OpenAI
 
-client = openai.OpenAI(
-    api_key="sk-your-master-key",
+client = OpenAI(
+    api_key="sk-your-desired-custom-key",  # Your LITELLM_MASTER_KEY from .env
     base_url="http://localhost:4000/v1"
 )
 
 response = client.chat.completions.create(
-    model="claude-sonnet",
-    messages=[{"role": "user", "content": "Hello"}]
+    model="sonnet",
+    messages=[{"role": "user", "content": "Hello, Claude!"}]
 )
 
 print(response.choices[0].message.content)
+```
+
+### cURL
+
+```bash
+curl -X POST http://localhost:4000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-your-desired-custom-key" \
+  -d '{
+    "model": "sonnet",
+    "messages": [
+      {"role": "user", "content": "Hello, Claude!"}
+    ]
+  }'
+```
+
+### LangChain
+
+```python
+from langchain.llms import OpenAI
+
+llm = OpenAI(
+    openai_api_base="http://localhost:4000/v1",
+    openai_api_key="sk-your-desired-custom-key",
+    model_name="sonnet"
+)
+
+response = llm("Tell me a joke")
+print(response)
 ```
 
 ## Available Models
 
 | Model Name | Description |
 |------------|-------------|
-| `sonnet` | Claude Sonnet (latest version) |
-| `opus` | Claude Opus (latest version) |
-| `default` | Default Claude model |
-| `default` | Haiku |
+| `sonnet` | Claude 3.5 Sonnet (latest) |
+| `opus` | Claude 3 Opus |
+| `claude-3-5-haiku-20241022` | Claude 3.5 Haiku |
+| `default` | Starts with Opus, falls back to Sonnet |
 
 
 ## Configuration
@@ -129,13 +185,39 @@ llm = OpenAI(
 
 ## Authentication
 
-This provider uses Claude CLI OAuth authentication:
-- First-time setup requires browser-based OAuth flow
-- ~~Authentication is handled through the integrated web UI at `/auth`~~
-- Credentials persist in Docker volume across container restarts
-- No API keys needed - uses Pro/Max Plan (OAuth tokens)
+### Authentication Methods
 
-See [AUTH_SETUP.md](AUTH_SETUP.md) for detailed authentication instructions.
+1. **Long-lived OAuth Tokens** (Recommended for Claude Pro/Max users)
+   - Generate with `claude setup-token` on your host machine
+   - Set `CLAUDE_CODE_OAUTH_TOKEN` in your `.env` file
+   - Tokens start with `sk-ant-oat01-` and last for 1 year
+   - Authentication persists across container restarts via Docker volume
+
+2. **Interactive Authentication** (Alternative)
+   ```bash
+   # Enter the container
+   docker exec -it litellm-claude-litellm-1 bash
+   
+   # Run claude to authenticate
+   claude
+   
+   # Follow the browser authentication flow
+   ```
+
+3. **Anthropic API Keys** (Not recommended)
+   - Can set `ANTHROPIC_API_KEY` in `.env`
+   - May override Pro/Max subscription benefits
+   - Uses API credits instead of subscription
+
+### Authentication Persistence
+
+The Docker setup includes a named volume for authentication:
+```yaml
+volumes:
+  - claude-auth:/home/claude/.claude
+```
+
+This ensures authentication persists across container restarts.
 
 ### Adding New Models
 
@@ -158,25 +240,51 @@ The provider:
 
 ## Troubleshooting
 
-### Test with curl
+### Common Issues
+
+**"Invalid API key" or 401 Unauthorized**
+- Ensure you're using your `LITELLM_MASTER_KEY` value (not the OAuth token)
+- The master key must start with `sk-`
+- Check your Authorization header: `Bearer sk-your-desired-custom-key`
+
+**"Authentication failed" from Claude SDK**
+- Your OAuth token may have expired
+- Regenerate with `claude setup-token` on your host machine
+- Update `CLAUDE_CODE_OAUTH_TOKEN` in your `.env` file
+- Restart the container: `docker-compose restart litellm`
+
+**"Model not found"**
+- Check available models: `curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"`
+- Valid model names: `sonnet`, `opus`, `claude-3-5-haiku-20241022`, `default`
+- Model names are case-sensitive
+
+**Slow responses or timeouts**
+- The first request after startup may be slower while establishing connections
+- Claude Code SDK responses can take 5-10 seconds for complex queries
+- Consider increasing timeout values in your client application
+
+### Testing the API
 
 ```bash
+# Quick test
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-your-master-key" \
+  -H "Authorization: Bearer sk-your-desired-custom-key" \
   -d '{
-    "model": "claude-sonnet",
-    "messages": [{"role": "user", "content": "Hello"}]
+    "model": "sonnet",
+    "messages": [{"role": "user", "content": "Say hello"}]
+  }'
+
+# With streaming (partial support)
+curl -X POST http://localhost:4000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-your-desired-custom-key" \
+  -d '{
+    "model": "sonnet",
+    "messages": [{"role": "user", "content": "Count to 5"}],
+    "stream": true
   }'
 ```
-
-### "Authentication failed"
-- Ensure running inside Claude Code environment
-- Check that `CLAUDE_CODE_SESSION` environment variable is set
-
-### "Model not found"
-- Check model name in `config/litellm_config.yaml`
-- Verify model name matches available Claude models
 
 ## License
 
