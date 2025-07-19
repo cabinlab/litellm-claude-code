@@ -6,25 +6,19 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'Dockerfile'
-      - 'docker-compose.yml'
       - 'providers/**'
-      - 'config/**'
       - 'scripts/**'
       - 'startup.py'
       - 'custom_handler.py'
-      - 'requirements.txt'
       - '.github/workflows/build-and-publish.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'Dockerfile'
-      - 'docker-compose.yml'
       - 'providers/**'
-      - 'config/**'
       - 'scripts/**'
       - 'startup.py'
       - 'custom_handler.py'
-      - 'requirements.txt'
       - '.github/workflows/build-and-publish.yml'
   workflow_dispatch:
 
