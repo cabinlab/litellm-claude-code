@@ -18,9 +18,9 @@ model_list:
       model: "claude-code-sdk/opus"
 
   # Starts with Opus, then switches to sonnet to avoid rate limits
-  - model_name: "default"
-    litellm_params:
-      model: "claude-code-sdk/default"
+  # - model_name: "default"
+  #   litellm_params:
+  #     model: "claude-code-sdk/default"
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

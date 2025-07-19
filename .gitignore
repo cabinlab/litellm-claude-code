@@ -116,4 +116,4 @@ test-*.sh
 test_*.sh
 
 # Dev research
-.archive/
+.archive/docker-compose.override.yml

@@ -1,6 +1,14 @@
 # LiteLLM Claude Code Provider
 
-A LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs.
+A LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs based on our:
+
+ - [Claude Code SDK Docker images](https://github.com/cabinlab/claude-code-sdk-docker)
+
+## Available Image
+
+```bash
+docker pull ghcr.io/cabinlab/litellm-claude-code:latest
+```
 
 ## Features
 
@@ -14,21 +22,27 @@ A LiteLLM provider that makes Claude Code SDK available through the standard Ope
 ## Quick Start (Claude Pro/Max Users)
 
 ### Prerequisites
-- Docker and Docker Compose
-- Claude Pro or Max subscription
-- A master key for API authentication (required)
+- Docker
+- Claude Pro or Max subscription OR Anthropic API key
 
 ### Setup
 
-1. **Clone the repository**:
+1. **Download the configuration files**:
+   ```bash
+   # Create a directory for the project
+   mkdir litellm-claude-code && cd litellm-claude-code
+   
+   # Download docker-compose.yml
+   curl -O https://raw.githubusercontent.com/cabinlab/litellm-claude-code/main/docker-compose.yml
+   
+   # Download .env.example
+   curl -o .env https://raw.githubusercontent.com/cabinlab/litellm-claude-code/main/.env.example
+   ```
+
+   Or if you prefer to clone the repository:
    ```bash
    git clone https://github.com/cabinlab/litellm-claude-code.git
    cd litellm-claude-code
-   ```
-
-2. **Configure environment variables**:
-   ```bash
-   # Copy the example environment file
    cp .env.example .env
    ```
 
@@ -42,7 +56,7 @@ A LiteLLM provider that makes Claude Code SDK available through the standard Ope
    LITELLM_MASTER_KEY=sk-$(openssl rand -hex 32)
    ```
 
-4. **Get your Claude OAuth token** (on your host machine):
+4. **Get your Claude OAuth token** (wherever you have Claude Code installed):
    ```bash
    # If you don't have the Claude CLI installed:
    npm install -g @anthropic-ai/claude-code
@@ -285,6 +299,29 @@ curl -X POST http://localhost:4000/v1/chat/completions \
     "stream": true
   }'
 ```
+
+## Development
+
+### Building Locally
+
+If you want to build the image locally instead of using the pre-built image:
+
+```bash
+# Clone the repository
+git clone https://github.com/cabinlab/litellm-claude-code.git
+cd litellm-claude-code
+
+# Build and run with docker-compose override
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 

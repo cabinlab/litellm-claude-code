@@ -15,7 +15,7 @@ services:
       retries: 10
 
   litellm:
-    build: .
+    image: ghcr.io/cabinlab/litellm-claude-code:latest
     ports:
       - "4000:4000"
     # REQUIRED: Set LITELLM_MASTER_KEY environment variable

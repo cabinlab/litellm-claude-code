@@ -1,0 +1,8 @@
+# Development override file
+# This file is used when you want to build locally instead of using the published image
+# To use: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  litellm:
+    build: .
+    image: litellm-claude-local
