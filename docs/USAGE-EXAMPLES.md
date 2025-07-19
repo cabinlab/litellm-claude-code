@@ -106,11 +106,7 @@ main();
 
 1. **Base URL**: Always use `http://localhost:4000/v1` (include the `/v1`)
 2. **API Key**: Use your LITELLM_MASTER_KEY from the .env file
-3. **Models**: Use exactly these names:
-   - `sonnet` (Claude Sonnet)
-   - `opus` (Claude Opus)
-   - `claude-3-5-haiku-20241022` (Claude 3.5 Haiku)
-   - `default` (Opus with Sonnet fallback)
+3. **Models**: See [Available Models](../README.md#available-models) for the complete list
 
 4. **Features Supported**:
    - Chat completions (`/v1/chat/completions`)

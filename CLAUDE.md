@@ -50,26 +50,16 @@ litellm --config config/litellm_config.yaml --port 4000
 
 ### Testing
 ```bash
-# Test with curl
-curl -X POST http://localhost:4000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-your-desired-custom-key" \
-  -d '{"model": "sonnet", "messages": [{"role": "user", "content": "Hello"}]}'
-
-# List available models
-curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"
-
 # Run test scripts
 python tests/integration/test_openai_client.py
 python tests/unit/test_provider.py
 ```
 
+For API testing examples, see [Usage Examples](../docs/USAGE-EXAMPLES.md).
+
 ## Available Models
 
-- `sonnet` - Claude Sonnet (latest)
-- `opus` - Claude Opus (latest)
-- `claude-3-5-haiku-20241022` - Claude 3.5 Haiku
-- `default` - Default model with automatic fallback
+See [Available Models](../README.md#available-models) in the README for the complete list of supported models.
 
 ## Key Configuration Files
 
