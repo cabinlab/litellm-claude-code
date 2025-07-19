@@ -19,7 +19,6 @@ docker pull ghcr.io/cabinlab/litellm-claude-code:latest
 - ✅ **Docker Deployment**: LiteLLM + Claude Code SDK in a single container
 - ✅ **Model Selection**: Supports all Claude models (Opus, Sonnet, Haiku)
 - ✅ **Standard Interface**: Drop-in replacement for OpenAI API
-- ✅ **PostgreSQL State Management**: Persistent model configurations and usage tracking
 
 ## Quick Start (Claude Pro/Max Users)
 
@@ -153,8 +152,8 @@ print(response)
 
 | Model Name | Description |
 |------------|-------------|
-| `sonnet` | Claude 3.5 Sonnet (latest) |
-| `opus` | Claude 3 Opus |
+| `sonnet` | Claude Sonnet (latest) |
+| `opus` | Claude Opus (latest) |
 | `claude-3-5-haiku-20241022` | Claude 3.5 Haiku |
 | `default` | Starts with Opus, falls back to Sonnet |
 
@@ -220,7 +219,7 @@ llm = OpenAI(
    # Follow the browser authentication flow
    ```
 
-3. **Anthropic API Keys** (Not recommended)
+3. **Anthropic API Keys**
    - Can set `ANTHROPIC_API_KEY` in `.env`
    - May override Pro/Max subscription benefits
    - Uses API credits instead of subscription

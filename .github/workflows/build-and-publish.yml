@@ -10,7 +10,6 @@ on:
       - 'scripts/**'
       - 'startup.py'
       - 'custom_handler.py'
-      - '.github/workflows/build-and-publish.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -19,7 +18,6 @@ on:
       - 'scripts/**'
       - 'startup.py'
       - 'custom_handler.py'
-      - '.github/workflows/build-and-publish.yml'
   workflow_dispatch:
 
 env:
@@ -105,3 +103,75 @@ jobs:
             -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }} \
             claude --version
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          # Get the latest tag, defaulting to v0.0.0 if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          
+          # Extract version numbers
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+          
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "Latest tag: $LATEST_TAG"
+          echo "New tag: $NEW_TAG"
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Get commit messages since last tag
+          LATEST_TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
+          
+          echo "## What's Changed" > release_notes.md
+          echo "" >> release_notes.md
+          
+          # Get commit messages since last tag
+          if [ "$LATEST_TAG" == "v0.0.0" ]; then
+            git log --pretty=format:"* %s (%h)" >> release_notes.md
+          else
+            git log ${LATEST_TAG}..HEAD --pretty=format:"* %s (%h)" >> release_notes.md
+          fi
+          
+          echo "" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${{ steps.get_latest_tag.outputs.new_tag }}" >> release_notes.md
+      
+      - name: Create and push tag
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          
+          NEW_TAG=${{ steps.get_latest_tag.outputs.new_tag }}
+          git tag -a $NEW_TAG -m "Release $NEW_TAG"
+          git push origin $NEW_TAG
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_latest_tag.outputs.new_tag }}
+          name: Release ${{ steps.get_latest_tag.outputs.new_tag }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false

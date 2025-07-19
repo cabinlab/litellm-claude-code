@@ -10,7 +10,7 @@ from openai import OpenAI
 # Point to your local LiteLLM instance
 client = OpenAI(
     base_url="http://localhost:4000/v1",
-    api_key="sk-1234"  # Your LiteLLM master key
+    api_key="sk-your-desired-custom-key"  # Your LiteLLM master key
 )
 
 # Use it exactly like OpenAI
@@ -32,7 +32,7 @@ from langchain_openai import ChatOpenAI
 # Configure to use your local endpoint
 llm = ChatOpenAI(
     base_url="http://localhost:4000/v1",
-    api_key="sk-1234",
+    api_key="sk-your-desired-custom-key",
     model="sonnet"
 )
 
@@ -51,8 +51,8 @@ from graphiti_core.llm_client import OpenAIClient
 # Create an OpenAI client pointing to LiteLLM
 llm_client = OpenAIClient(
     base_url="http://localhost:4000/v1",
-    api_key="sk-1234",
-    model="sonnet"  # Use Claude Sonnet 4
+    api_key="sk-your-desired-custom-key",
+    model="sonnet"  # Use Claude Sonnet
 )
 
 # Initialize Graphiti with your client
@@ -69,7 +69,7 @@ graphiti = Graphiti(
 ```bash
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-1234" \
+  -H "Authorization: Bearer sk-your-desired-custom-key" \
   -d '{
     "model": "sonnet",
     "messages": [
@@ -87,7 +87,7 @@ import OpenAI from 'openai';
 
 const openai = new OpenAI({
   baseURL: 'http://localhost:4000/v1',
-  apiKey: 'sk-1234',
+  apiKey: 'sk-your-desired-custom-key',
 });
 
 async function main() {
@@ -105,12 +105,12 @@ main();
 ## Key Points
 
 1. **Base URL**: Always use `http://localhost:4000/v1` (include the `/v1`)
-2. **API Key**: Use `sk-1234` (or whatever you set in your config)
+2. **API Key**: Use your LITELLM_MASTER_KEY from the .env file
 3. **Models**: Use exactly these names:
-   - `sonnet` (Claude Sonnet 4)
-   - `opus` (Claude Opus 4)
+   - `sonnet` (Claude Sonnet)
+   - `opus` (Claude Opus)
    - `claude-3-5-haiku-20241022` (Claude 3.5 Haiku)
-   - `default` (Opus 4 with Sonnet 4 fallback)
+   - `default` (Opus with Sonnet fallback)
 
 4. **Features Supported**:
    - Chat completions (`/v1/chat/completions`)
@@ -128,7 +128,7 @@ Instead of hardcoding URLs, use environment variables:
 ```bash
 # .env file
 OPENAI_API_BASE=http://localhost:4000/v1
-OPENAI_API_KEY=sk-1234
+OPENAI_API_KEY=sk-your-desired-custom-key
 OPENAI_MODEL=sonnet
 ```
 

@@ -34,9 +34,7 @@ docker-compose logs litellm
 docker-compose restart litellm
 
 # Authenticate Claude (OAuth flow)
-./scripts/authenticate-claude.sh
-# or directly:
-docker exec -it litellm-claude-litellm-1 claude-code login
+docker exec -it litellm-claude-litellm-1 claude
 ```
 
 ### Local Development
@@ -55,21 +53,21 @@ litellm --config config/litellm_config.yaml --port 4000
 # Test with curl
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-1234" \
+  -H "Authorization: Bearer sk-your-desired-custom-key" \
   -d '{"model": "sonnet", "messages": [{"role": "user", "content": "Hello"}]}'
 
 # List available models
-curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-1234"
+curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"
 
 # Run test scripts
-python test_openai_client.py
-python test_provider.py
+python tests/integration/test_openai_client.py
+python tests/unit/test_provider.py
 ```
 
 ## Available Models
 
-- `sonnet` - Claude Sonnet 4
-- `opus` - Claude Opus 4
+- `sonnet` - Claude Sonnet (latest)
+- `opus` - Claude Opus (latest)
 - `claude-3-5-haiku-20241022` - Claude 3.5 Haiku
 - `default` - Default model with automatic fallback
 
@@ -83,7 +81,7 @@ python test_provider.py
 ## API Configuration
 
 - Base URL: `http://localhost:4000/v1`
-- Authorization: `Bearer sk-1234`
+- Authorization: `Bearer sk-your-desired-custom-key`
 - Endpoints: `/chat/completions`, `/models`, `/health`
 - Supports both sync and async streaming
 
@@ -93,6 +91,6 @@ python test_provider.py
 2. Update model configurations in `config/litellm_config.yaml`
 3. Restart container: `docker-compose restart litellm`
 4. Test changes with curl or test scripts
-5. OAuth tokens persist in container at `/root/.claude.json`
+5. OAuth tokens persist in container at `/home/claude/.claude`
 
 The project uses no linting or formatting tools - follow existing code style when making changes.
