@@ -24,6 +24,7 @@ model_list:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: null  # Disable database to avoid Prisma issues
 
 litellm_settings:
   drop_params: true

@@ -1,45 +1,40 @@
-FROM python:3.11-slim
+FROM ghcr.io/cabinlab/claude-code-sdk-docker:python
 
+# Switch to root for installations
+USER root
+
+# Install LiteLLM and additional dependencies
+RUN pip install --no-cache-dir \
+    litellm[proxy]>=1.40.0 \
+    prisma \
+    aiofiles
+
+# Generate Prisma client as root to avoid permission issues later
+RUN cd /opt/venv/lib/python3.11/site-packages/litellm/proxy && \
+    prisma generate || true
+
+# Copy application code with proper ownership
+COPY --chown=claude:claude providers/ /app/providers/
+COPY --chown=claude:claude config/ /app/config/
+COPY --chown=claude:claude custom_handler.py /app/custom_handler.py
+COPY --chown=claude:claude startup.py /app/startup.py
+
+# Copy custom entrypoint that handles OAuth token setup
+COPY scripts/litellm-entrypoint.sh /usr/local/bin/litellm-entrypoint.sh
+RUN chmod +x /usr/local/bin/litellm-entrypoint.sh
+
+# Switch back to claude user
+USER claude
+
+# Working directory
 WORKDIR /app
 
-# Install system dependencies including Node.js
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Claude Code CLI globally
-RUN npm install -g @anthropic-ai/claude-code
-
-# Copy requirements
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Claude Code SDK from PyPI
-RUN pip install --no-cache-dir claude-code-sdk
-
-# Copy provider code
-COPY providers/ /app/providers/
-COPY config/ /app/config/
-COPY custom_handler.py /app/custom_handler.py
-COPY custom_handler.py /app/config/custom_handler.py
-
-# Copy startup script, auth integration, and entrypoint
-COPY startup.py /app/startup.py
-COPY auth_integration.py /app/auth_integration.py
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Create directory for Claude auth with proper permissions
-RUN mkdir -p /root && chmod 755 /root
-
+# Expose LiteLLM port
 EXPOSE 4000
 
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD curl -f http://localhost:4000/health || exit 1
 
-CMD ["/app/entrypoint.sh"]
+# Use custom entrypoint that chains Claude auth + LiteLLM startup
+ENTRYPOINT ["/usr/local/bin/litellm-entrypoint.sh"]

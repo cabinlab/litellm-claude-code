@@ -12,17 +12,8 @@ sys.path.append('/app')
 # The custom provider will be loaded via the YAML config
 print("Starting LiteLLM with custom provider configuration...")
 
-# Generate Prisma client first
-print("Generating Prisma client...")
-try:
-    result = subprocess.run(['prisma', 'generate'], capture_output=True, text=True, cwd='/usr/local/lib/python3.11/site-packages/litellm/proxy')
-    print(f"Prisma generate result: {result.returncode}")
-    if result.stdout:
-        print(f"Stdout: {result.stdout}")
-    if result.stderr:
-        print(f"Stderr: {result.stderr}")
-except Exception as e:
-    print(f"Prisma generate failed: {e}")
+# Skip Prisma generation when running as non-root user
+print("Skipping Prisma client generation (running as non-root user)")
 
 print("Starting LiteLLM proxy with YAML config...")
 
@@ -70,11 +61,6 @@ if __name__ == "__main__":
     
     import uvicorn
     from litellm.proxy.proxy_server import app
-    
-    # Add authentication routes
-    from auth_integration import add_auth_routes
-    app = add_auth_routes(app)
-    print("[STARTUP] Added authentication routes to LiteLLM")
     
     # Start the server
     uvicorn.run(app, host="0.0.0.0", port=4000)

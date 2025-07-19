@@ -114,3 +114,6 @@ tests/
 test_*.py
 test-*.sh
 test_*.sh
+
+# Dev research
+.archive/

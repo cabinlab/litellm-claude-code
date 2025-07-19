@@ -28,7 +28,7 @@ services:
       # Docker volume for persistent Claude CLI authentication
       # The CLI stores OAuth tokens in ~/.claude/.credentials.json
       # This volume persists across container restarts
-      - claude-auth:/root/.claude
+      - claude-auth:/home/claude/.claude
     env_file:
       - .env
     depends_on:

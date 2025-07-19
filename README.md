@@ -43,7 +43,7 @@ A generic LiteLLM provider that makes Claude Code SDK available through the stan
    # Enter the container
    docker exec -it litellm-claude-litellm-1 /bin/bash
    
-   # Run claude authentication
+   # Run claude to check authentication (will prompt if needed)
    claude
    
    # Follow the prompts to authenticate via Pro/Max Plan (API might still work?)
