@@ -69,9 +69,9 @@ A LiteLLM provider that makes Claude Code SDK available through the standard Ope
 7. **Verify it's working**:
 
    ### Web UI
-   ```
-   http://localhost:4000/ui/ --> Test Key
-   ```
+   Navigate to `http://localhost:4000/ui/` and click "Test Key" to try the interactive interface:
+
+   ![LiteLLM Web UI Test Interface](docs/images/litellm-web-ui-test-key.png)
 
    ### Terminal
    ```bash
