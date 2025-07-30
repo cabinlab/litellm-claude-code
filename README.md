@@ -1,6 +1,7 @@
 # LiteLLM Claude Code Provider
 
-[![Build and Publish](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml)
 
 A LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs based on our:
 
