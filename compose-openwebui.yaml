@@ -1,0 +1,84 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_USER: llmproxy
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  litellm:
+    image: ghcr.io/cabinlab/litellm-claude-code:latest
+    expose:
+      - "4000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./providers:/app/providers:ro
+      - claude-auth:/home/claude/.claude
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    expose:
+      - "8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      # Use LiteLLM as the OpenAI API backend
+      - OPENAI_API_KEY=${LITELLM_MASTER_KEY}
+      - OPENAI_API_BASE_URL=http://litellm:4000/v1
+      # Disable Ollama integration
+      - ENABLE_OLLAMA_API=false
+      - OLLAMA_BASE_URL=""
+      # Set a secure session key
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
+      # Enable OpenAI API models
+      - ENABLE_OPENAI_API=true
+      # Enable secure cookies for HTTPS
+      - WEBUI_SESSION_COOKIE_SECURE=true
+      - WEBUI_AUTH_COOKIE_SECURE=true
+    env_file:
+      - .env
+    depends_on:
+      - litellm
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "${OPEN_WEBUI_PORT:-8090}:80"
+      - "${OPEN_WEBUI_HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./nginx-ssl:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/ssl:rw
+    depends_on:
+      - open-webui
+    restart: unless-stopped
+    command: >
+      sh -c "
+        if [ ! -f /etc/nginx/ssl/cert.pem ]; then
+          apk add --no-cache openssl &&
+          mkdir -p /etc/nginx/ssl &&
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/key.pem -out /etc/nginx/ssl/cert.pem -subj '/CN=localhost'
+        fi &&
+        nginx -g 'daemon off;'
+      "
+
+volumes:
+  postgres_data:
+  claude-auth:
+  open-webui:

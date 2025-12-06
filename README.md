@@ -3,9 +3,7 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml)
 
-A LiteLLM provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs based on our:
-
- - [Claude Code SDK Docker images](https://github.com/cabinlab/claude-code-sdk-docker)
+Dockerized LiteLLM with custom provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs based on our:
 
 ```
 ┌─────────────────┐         ╭──────────────╮         ┌─────────────────┐
@@ -21,6 +19,7 @@ A LiteLLM provider that makes Claude Code SDK available through the standard Ope
 ```bash
 docker pull ghcr.io/cabinlab/litellm-claude-code:latest
 ```
+based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-code-sdk-docker)
 
 ## ✨ Features
 
@@ -92,7 +91,7 @@ docker pull ghcr.io/cabinlab/litellm-claude-code:latest
 7. **Verify it's working**:
 
    ### Web UI
-   Navigate to `http://localhost:4000/ui/` and click "Test Key" to try the interactive interface:
+   Navigate to `http://localhost:4000/ui/` and select Test Key:
 
    ![LiteLLM Web UI Test Interface](docs/images/litellm-web-ui-test-key.png)
 

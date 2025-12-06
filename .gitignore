@@ -109,6 +109,10 @@ claude.json
 **/claude.json
 .claude_code/
 
+# Local tooling and certificates
+.serena/
+certs/
+
 # Test files and directories
 tests/
 test_*.py

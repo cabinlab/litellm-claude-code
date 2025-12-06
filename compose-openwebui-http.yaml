@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_USER: llmproxy
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  litellm:
+    image: ghcr.io/cabinlab/litellm-claude-code:latest
+    ports:
+      - "4000:4000"
+    volumes:
+      # Mount config for easy model updates
+      - ./config:/app/config:ro
+      # Mount provider code for development
+      - ./providers:/app/providers:ro
+      # Docker volume for persistent Claude CLI authentication
+      - claude-auth:/home/claude/.claude
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "${OPEN_WEBUI_PORT:-8090}:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      # Use LiteLLM as the OpenAI API backend
+      - OPENAI_API_KEY=${LITELLM_MASTER_KEY}
+      - OPENAI_API_BASE_URL=http://litellm:4000/v1
+      # Disable Ollama integration
+      - ENABLE_OLLAMA_API=false
+      - OLLAMA_BASE_URL=""
+      # Set a secure session key
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
+      # Enable OpenAI API models
+      - ENABLE_OPENAI_API=true
+    env_file:
+      - .env
+    depends_on:
+      - litellm
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  claude-auth:
+  open-webui:
