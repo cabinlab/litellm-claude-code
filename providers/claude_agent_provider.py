@@ -11,28 +11,39 @@ from litellm.types.utils import Choices, GenericStreamingChunk, Message as LiteL
 from claude_agent_sdk import query, ClaudeAgentOptions
 from claude_agent_sdk.types import AssistantMessage, ResultMessage, TextBlock
 
-ROLE_PREFIXES = {
-    "system": "System",
-    "user": "Human",
-    "assistant": "Assistant",
-}
+DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant."
+
+ROLE_PREFIXES = {"user": "Human", "assistant": "Assistant"}
 
 
 class ClaudeAgentSDKProvider(CustomLLM):
-    """LiteLLM provider that routes requests through the Claude Agent SDK."""
+    """LiteLLM provider that wraps the Claude Agent SDK as a plain model call."""
 
     def __init__(self):
         super().__init__()
         print("ClaudeAgentSDKProvider initialized")
 
     @staticmethod
-    def _format_prompt(messages: List[Dict]) -> str:
-        parts = []
+    def _split_messages(messages: List[Dict]) -> Tuple[str, str]:
+        """Separate system prompt from conversation turns.
+
+        Returns (system_prompt, conversation_prompt).
+        """
+        system_parts = []
+        turn_parts = []
         for msg in messages:
-            prefix = ROLE_PREFIXES.get(msg.get("role", "user"))
-            if prefix:
-                parts.append(f"{prefix}: {msg.get('content', '')}")
-        return "\n\n".join(parts)
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            if role == "system":
+                system_parts.append(content)
+            else:
+                prefix = ROLE_PREFIXES.get(role)
+                if prefix:
+                    turn_parts.append(f"{prefix}: {content}")
+
+        system_prompt = "\n\n".join(system_parts) if system_parts else DEFAULT_SYSTEM_PROMPT
+        conversation = "\n\n".join(turn_parts)
+        return system_prompt, conversation
 
     @staticmethod
     def _extract_model(model: str) -> str:
@@ -90,8 +101,13 @@ class ClaudeAgentSDKProvider(CustomLLM):
 
     async def acompletion(self, model: str, messages: List[Dict], **kwargs) -> ModelResponse:
         """Async completion using Claude Agent SDK."""
-        prompt = self._format_prompt(messages)
-        options = ClaudeAgentOptions(model=self._extract_model(model))
+        system_prompt, prompt = self._split_messages(messages)
+        options = ClaudeAgentOptions(
+            model=self._extract_model(model),
+            system_prompt=system_prompt,
+            allowed_tools=[],
+            max_turns=1,
+        )
 
         content = ""
         prompt_tokens = 0
@@ -120,8 +136,13 @@ class ClaudeAgentSDKProvider(CustomLLM):
 
     async def astreaming(self, model: str, messages: List[Dict], **kwargs) -> AsyncIterator[GenericStreamingChunk]:
         """Async streaming using Claude Agent SDK."""
-        prompt = self._format_prompt(messages)
-        options = ClaudeAgentOptions(model=self._extract_model(model))
+        system_prompt, prompt = self._split_messages(messages)
+        options = ClaudeAgentOptions(
+            model=self._extract_model(model),
+            system_prompt=system_prompt,
+            allowed_tools=[],
+            max_turns=1,
+        )
 
         total_chars = 0
         prompt_tokens = 0
