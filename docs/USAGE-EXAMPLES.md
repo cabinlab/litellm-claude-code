@@ -1,6 +1,6 @@
 # Using LiteLLM-Claude as an OpenAI API
 
-This integration provides an OpenAI-compatible API that translates requests to Claude Code SDK. Here's how to use it:
+This integration provides an OpenAI-compatible API that translates requests to Claude Agent SDK. Here's how to use it:
 
 ## Python with OpenAI Client
 
@@ -15,7 +15,7 @@ client = OpenAI(
 
 # Use it exactly like OpenAI
 response = client.chat.completions.create(
-    model="sonnet",  # or "opus", "claude-3-5-haiku-20241022", "default"
+    model="sonnet",  # or "opus", "haiku"
     messages=[
         {"role": "user", "content": "Hello, Claude!"}
     ]

@@ -59,7 +59,7 @@ The LiteLLM master key serves as the authentication barrier between the public A
 
 This system uses OAuth for Claude authentication (stored in Docker volume) and API keys for LiteLLM access. The two are separate:
 
-- **Claude OAuth**: Handled via `claude-auth` Docker volume, persists across restarts
+- **Claude OAuth**: Handled via `claude-auth` Docker volume, persists across restarts. The Claude Agent SDK uses this for authentication.
 - **LiteLLM API Key**: Set via `LITELLM_MASTER_KEY`, used in `Authorization: Bearer <key>` headers
 
 ## Checking Current Configuration

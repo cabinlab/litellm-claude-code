@@ -1,15 +1,15 @@
-# LiteLLM Claude Code Provider
+# LiteLLM Claude Agent SDK Provider
 
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/litellm-claude-code/actions/workflows/build-and-publish.yml)
 
-Dockerized LiteLLM with custom provider that makes Claude Code SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Code LLM Gateway](https://docs.anthropic.com/en/docs/claude-code/llm-gateway) docs based on our:
+Dockerized LiteLLM with custom provider that makes Claude Agent SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-agent-sdk) documentation:
 
 ```
 ┌─────────────────┐         ╭──────────────╮         ┌─────────────────┐
 │                 │         │              │         │   Open WebUI,   │
-│  Claude Code    │ ◄─────► │   LiteLLM    │ ◄─────► │    Grafiti,     │
-│                 │         │              │         │ LangChain, etc. │
+│ Claude Agent    │ ◄─────► │   LiteLLM    │ ◄─────► │    Grafiti,     │
+│     SDK         │         │              │         │ LangChain, etc. │
 └─────────────────┘         ╰──────────────╯         └─────────────────┘
      OAuth/API                 Translation          OpenAI Compatible App
 ```
@@ -21,15 +21,15 @@ docker pull ghcr.io/cabinlab/litellm-claude-code:latest
 ```
 based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-code-sdk-docker)
 
-## ✨ Features
+## Features
 
-- ✅ **Claude Pro/Max Plan**: Uses Claude Code's OAuth authentication (no API keys needed)
-- ✅ **OpenAI API Compatibility**: Use Claude Code in apps expecting OpenAI API keys
-- ✅ **Docker Deployment**: LiteLLM + Claude Code SDK in a single container
-- ✅ **Model Selection**: Supports all Claude models (Opus, Sonnet, Haiku)
-- ✅ **Standard Interface**: Drop-in replacement for OpenAI API
+- **Claude Pro/Max Plan**: Uses Claude's OAuth authentication (no API keys needed)
+- **OpenAI API Compatibility**: Use Claude in apps expecting OpenAI API keys
+- **Docker Deployment**: LiteLLM + Claude Agent SDK in a single container
+- **Model Selection**: Supports all Claude models (Opus, Sonnet, Haiku)
+- **Standard Interface**: Drop-in replacement for OpenAI API
 
-## 🚀 Quick Start (Claude Pro/Max Users)
+## Quick Start (Claude Pro/Max Users)
 
 ### Prerequisites
 - Docker
@@ -40,11 +40,11 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
 1. **Download the configuration files**:
    ```bash
    # Create a directory for the project
-   mkdir litellm-claude-code && cd litellm-claude-code
-   
+   mkdir litellm-claude && cd litellm-claude
+
    # Download docker-compose.yml
    curl -O https://raw.githubusercontent.com/cabinlab/litellm-claude-code/main/docker-compose.yml
-   
+
    # Download .env.example
    curl -o .env https://raw.githubusercontent.com/cabinlab/litellm-claude-code/main/.env.example
    ```
@@ -61,14 +61,14 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
    # Edit .env and update LITELLM_MASTER_KEY
    LITELLM_MASTER_KEY=sk-your-desired-custom-key
    ```
-   
-   ⚠️ **See [Security Guide](docs/SECURITY.md) for key generation best practices**
+
+   See [Security Guide](docs/SECURITY.md) for key generation best practices
 
 4. **Get your Claude OAuth token** (wherever you have Claude Code installed):
    ```bash
    # If you don't have the Claude CLI installed:
-   npm install -g @anthropic-ai/claude-code
-   
+   npm install -g @anthropic-ai/claude-agent-sdk
+
    # Generate a long-lived token
    claude setup-token
 
@@ -99,32 +99,31 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
    ```bash
    # Check health (replace with your LITELLM_MASTER_KEY)
    curl http://localhost:4000/health -H "Authorization: Bearer sk-your-desired-custom-key"
-   
+
    # List models
    curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"
    ```
 
 The API is now available at `http://localhost:4000/v1`
 
-## 🤖 Available Models
+## Available Models
 
 | Model Name | Description |
 |------------|-------------|
 | `sonnet` | Claude Sonnet (latest) |
 | `opus` | Claude Opus (latest) |
-| `claude-3-5-haiku-20241022` | Claude 3.5 Haiku |
-| `default` | Starts with Opus, falls back to Sonnet |
+| `haiku` | Claude Haiku (latest) |
 
 ### Adding Models
-The default settings automatically use the latest Sonnet and Opus models, and the last-known release of Haiku. You can try other models from [Anthropic's list](https://docs.anthropic.com/en/docs/about-claude/models/overview):
+The default settings automatically use the latest Sonnet, Opus, and Haiku models. You can try other models from [Anthropic's list](https://docs.anthropic.com/en/docs/about-claude/models/overview):
 
 1. Edit `config/litellm_config.yaml` to add/modify models:
 
 ```yaml
 model_list:
-  - model_name: {Anthropic's official model name}
+  - model_name: {model alias}
     litellm_params:
-      model: claude-code-sdk/claude-model
+      model: claude-agent-sdk/{model-name}
 ```
 
 2. Restart the container
@@ -133,7 +132,7 @@ model_list:
 docker-compose restart litellm
 ```
 
-## 🔐 Authentication
+## Authentication
 
 ### Methods
 
@@ -146,14 +145,14 @@ docker-compose restart litellm
 2. **Interactive Authentication** (Alternative)
    <details>
    <summary>View steps</summary>
-   
+
    ```bash
    # Enter the container
    docker exec -it litellm-claude-litellm-1 bash
-   
+
    # Run claude to authenticate
    claude
-   
+
    # Follow the browser authentication flow
    ```
    </details>
@@ -161,7 +160,7 @@ docker-compose restart litellm
 3. **Anthropic API Keys**
    <details>
    <summary>View details</summary>
-   
+
    - Can set `ANTHROPIC_API_KEY` in `.env`
    - May override Pro/Max subscription benefits
    - Uses API credits instead of subscription
@@ -177,20 +176,20 @@ volumes:
 
 This ensures authentication persists across container restarts.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-Client Application → LiteLLM Proxy → Claude Code SDK Provider → Claude Code SDK → Claude API
+Client Application → LiteLLM Proxy → Claude Agent SDK Provider → Claude Agent SDK → Claude API
 ```
 
 The provider:
 1. Receives OpenAI-format requests from LiteLLM
 2. Converts messages to Claude prompt format
-3. Extracts model name and creates `ClaudeCodeOptions(model=...)`
-4. Calls Claude Code SDK with OAuth authentication
+3. Extracts model name and creates `ClaudeAgentOptions(model=...)`
+4. Calls Claude Agent SDK with OAuth authentication
 5. Returns response in OpenAI format
 
-## 💻 Direct API Use
+## Direct API Use
 
 <details>
 <summary>View Python example</summary>
@@ -212,9 +211,9 @@ print(response.choices[0].message.content)
 ```
 </details>
 
-📚 **See [Usage Examples](docs/USAGE-EXAMPLES.md) for more languages and frameworks** (cURL, LangChain, JavaScript, Graphiti, etc.)
+See [Usage Examples](docs/USAGE-EXAMPLES.md) for more languages and frameworks (cURL, LangChain, JavaScript, Graphiti, etc.)
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 <details>
 <summary>View common issues and solutions</summary>
@@ -234,12 +233,12 @@ print(response.choices[0].message.content)
 
 **"Model not found"**
 - Check available models: `curl http://localhost:4000/v1/models -H "Authorization: Bearer sk-your-desired-custom-key"`
-- Valid model names: `sonnet`, `opus`, `claude-3-5-haiku-20241022`, `default`
+- Valid model names: `sonnet`, `opus`, `haiku`
 - Model names are case-sensitive
 
 **Slow responses or timeouts**
 - The first request after startup may be slower while establishing connections
-- Claude Code SDK responses can take 5-10 seconds for complex queries
+- Claude Agent SDK responses can take 5-10 seconds for complex queries
 - Consider increasing timeout values in your client application
 
 **WebSocket Connection Failed**
@@ -276,7 +275,7 @@ curl -X POST http://localhost:4000/v1/chat/completions \
 
 </details>
 
-## 🔨 Building Locally
+## Building Locally
 
 <details>
 <summary>View build instructions</summary>
@@ -294,6 +293,6 @@ docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
 
 </details>
 
-## 📄 License
+## License
 
 MIT License
