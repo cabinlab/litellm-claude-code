@@ -12,17 +12,12 @@ RUN pip install --no-cache-dir \
 # Set up Prisma cache directory for claude user
 ENV PRISMA_PYTHON_CACHE_DIR="/home/claude/.cache/prisma-python"
 RUN mkdir -p /home/claude/.cache/prisma-python && \
-    chown -R claude:claude /home/claude/.cache && \
-    # Create a symlink from root's cache to claude's cache as a fallback
-    mkdir -p /root/.cache && \
-    ln -s /home/claude/.cache/prisma-python /root/.cache/prisma-python
+    chown -R claude:claude /home/claude/.cache
 
-# Generate Prisma client as root to avoid permission issues later
-# First, ensure we're using the venv pip
+# Generate Prisma client
 ENV PATH="/opt/venv/bin:$PATH"
 RUN cd /opt/venv/lib/python3.11/site-packages/litellm/proxy && \
     PRISMA_PYTHON_CACHE_DIR=/home/claude/.cache/prisma-python prisma generate && \
-    # Ensure the claude user can access Prisma binaries
     chown -R claude:claude /home/claude/.cache/prisma-python && \
     chown -R claude:claude /opt/venv/lib/python3.11/site-packages/prisma && \
     chmod -R 755 /opt/venv/lib/python3.11/site-packages/prisma
@@ -30,12 +25,10 @@ RUN cd /opt/venv/lib/python3.11/site-packages/litellm/proxy && \
 # Copy application code with proper ownership
 COPY --chown=claude:claude providers/ /app/providers/
 COPY --chown=claude:claude config/ /app/config/
-COPY --chown=claude:claude custom_handler.py /app/custom_handler.py
-COPY --chown=claude:claude startup.py /app/startup.py
 
-# Copy custom entrypoint that handles OAuth token setup
-COPY scripts/litellm-entrypoint.sh /usr/local/bin/litellm-entrypoint.sh
-RUN chmod +x /usr/local/bin/litellm-entrypoint.sh
+# Copy entrypoint script
+COPY scripts/entrypoint.sh /app/scripts/entrypoint.sh
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # Switch back to claude user
 USER claude
@@ -50,5 +43,5 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD curl -f http://localhost:4000/health || exit 1
 
-# Use custom entrypoint that chains Claude auth + LiteLLM startup
-ENTRYPOINT ["/usr/local/bin/litellm-entrypoint.sh"]
+# Single entrypoint
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

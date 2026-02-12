@@ -18,16 +18,9 @@ services:
     image: ghcr.io/cabinlab/litellm-claude-code:latest
     ports:
       - "4000:4000"
-    # REQUIRED: Set LITELLM_MASTER_KEY environment variable
-    # See docs/SECURITY.md for details
     volumes:
-      # Mount config for easy model updates
       - ./config:/app/config:ro
-      # Mount provider code for development
       - ./providers:/app/providers:ro
-      # Docker volume for persistent Claude CLI authentication
-      # The CLI stores OAuth tokens in ~/.claude/.credentials.json
-      # This volume persists across container restarts
       - claude-auth:/home/claude/.claude
     env_file:
       - .env

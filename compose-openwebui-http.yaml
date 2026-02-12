@@ -19,11 +19,8 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      # Mount config for easy model updates
       - ./config:/app/config:ro
-      # Mount provider code for development
       - ./providers:/app/providers:ro
-      # Docker volume for persistent Claude CLI authentication
       - claude-auth:/home/claude/.claude
     env_file:
       - .env
@@ -40,15 +37,11 @@ services:
     volumes:
       - open-webui:/app/backend/data
     environment:
-      # Use LiteLLM as the OpenAI API backend
       - OPENAI_API_KEY=${LITELLM_MASTER_KEY}
       - OPENAI_API_BASE_URL=http://litellm:4000/v1
-      # Disable Ollama integration
       - ENABLE_OLLAMA_API=false
       - OLLAMA_BASE_URL=""
-      # Set a secure session key
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
-      # Enable OpenAI API models
       - ENABLE_OPENAI_API=true
     env_file:
       - .env
