@@ -96,14 +96,13 @@ Thumbs.db
 tmp/
 temp/
 
-# API keys and secrets (backup protection)
-*api*key*
-*secret*
-*token*
+# Secrets and credentials
 credentials.*
+*.pem.key
+*.key.pem
 
 # OAuth tokens and Claude credentials
-.claude 
+.claude
 .claude.json
 claude.json
 **/claude.json
@@ -113,11 +112,8 @@ claude.json
 .serena/
 certs/
 
-# Test files and directories
+# Test files
 tests/
 test_*.py
 test-*.sh
 test_*.sh
-
-# Dev research
-.archive/docker-compose.override.yml

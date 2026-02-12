@@ -19,8 +19,8 @@ services:
     expose:
       - "4000"
     volumes:
-      - ./config:/app/config:ro
-      - ./providers:/app/providers:ro
+      - ./config/litellm_config.yaml:/app/config/litellm_config.yaml:ro
+      - ./providers:/app/config/providers:ro
       - claude-auth:/home/claude/.claude
     env_file:
       - .env
@@ -37,12 +37,11 @@ services:
     volumes:
       - open-webui:/app/backend/data
     environment:
+      - ENABLE_OPENAI_API=true
       - OPENAI_API_KEY=${LITELLM_MASTER_KEY}
       - OPENAI_API_BASE_URL=http://litellm:4000/v1
       - ENABLE_OLLAMA_API=false
-      - OLLAMA_BASE_URL=""
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
-      - ENABLE_OPENAI_API=true
       - WEBUI_SESSION_COOKIE_SECURE=true
       - WEBUI_AUTH_COOKIE_SECURE=true
     env_file:

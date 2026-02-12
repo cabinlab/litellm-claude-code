@@ -69,8 +69,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
 
   test:
     if: github.event_name == 'pull_request'
@@ -83,28 +81,17 @@ jobs:
       - name: Build test image
         run: docker build -t litellm-claude-test .
 
-      - name: Test container
+      - name: Verify container dependencies
         run: |
-          # Test that the container can start
           docker run --rm \
             -e LITELLM_MASTER_KEY=sk-test-key \
             -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
             litellm-claude-test \
-            python --version
-
-          # Test that LiteLLM is installed
-          docker run --rm \
-            -e LITELLM_MASTER_KEY=sk-test-key \
-            -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
-            litellm-claude-test \
-            litellm --version || echo "LiteLLM version check"
-
-          # Test that the Claude Agent SDK is importable
-          docker run --rm \
-            -e LITELLM_MASTER_KEY=sk-test-key \
-            -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
-            litellm-claude-test \
-            python -c "import claude_agent_sdk; print('Claude Agent SDK available')"
+            bash -c '
+              python --version &&
+              litellm --version &&
+              python -c "import claude_agent_sdk; print(\"Claude Agent SDK available\")"
+            '
 
   release:
     needs: build
@@ -120,44 +107,33 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Get latest tag
+      - name: Compute next patch version
         id: get_latest_tag
         run: |
-          # Get the latest tag, defaulting to v0.0.0 if no tags exist
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          
-          # Extract version numbers
+
           VERSION=${LATEST_TAG#v}
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          
-          # Increment patch version
-          NEW_PATCH=$((PATCH + 1))
-          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
-          
+          NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-          echo "Latest tag: $LATEST_TAG"
-          echo "New tag: $NEW_TAG"
-      
+          echo "Latest: $LATEST_TAG -> Next: $NEW_TAG"
+
       - name: Generate release notes
-        id: release_notes
         run: |
-          # Get commit messages since last tag
           LATEST_TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
-          
+
           echo "## What's Changed" > release_notes.md
           echo "" >> release_notes.md
-          
-          # Get commit messages since last tag
+
           if [ "$LATEST_TAG" == "v0.0.0" ]; then
             git log --pretty=format:"* %s (%h)" >> release_notes.md
           else
             git log ${LATEST_TAG}..HEAD --pretty=format:"* %s (%h)" >> release_notes.md
           fi
-          
-          echo "" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${{ steps.get_latest_tag.outputs.new_tag }}" >> release_notes.md
+
+          echo -e "\n\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${{ steps.get_latest_tag.outputs.new_tag }}" >> release_notes.md
       
       - name: Create and push tag
         run: |
