@@ -73,7 +73,6 @@ jobs:
             BUILDKIT_INLINE_CACHE=1
 
   test:
-    needs: build
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
@@ -81,27 +80,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build test image
+        run: docker build -t litellm-claude-test .
+
       - name: Test container
         run: |
           # Test that the container can start
           docker run --rm \
             -e LITELLM_MASTER_KEY=sk-test-key \
             -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }} \
+            litellm-claude-test \
             python --version
-          
+
           # Test that LiteLLM is installed
           docker run --rm \
             -e LITELLM_MASTER_KEY=sk-test-key \
             -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }} \
+            litellm-claude-test \
             litellm --version || echo "LiteLLM version check"
-          
+
           # Test that the Claude Agent SDK is importable
           docker run --rm \
             -e LITELLM_MASTER_KEY=sk-test-key \
             -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }} \
+            litellm-claude-test \
             python -c "import claude_agent_sdk; print('Claude Agent SDK available')"
 
   release:

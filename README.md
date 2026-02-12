@@ -5,13 +5,10 @@
 
 Dockerized LiteLLM with custom provider that makes Claude Agent SDK available through the standard OpenAI-compatible API interface. Based on Anthropic's official [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-agent-sdk) documentation:
 
-```
-┌─────────────────┐         ╭──────────────╮         ┌─────────────────┐
-│                 │         │              │         │   Open WebUI,   │
-│ Claude Agent    │ ◄─────► │   LiteLLM    │ ◄─────► │    Grafiti,     │
-│     SDK         │         │              │         │ LangChain, etc. │
-└─────────────────┘         ╰──────────────╯         └─────────────────┘
-     OAuth/API                 Translation          OpenAI Compatible App
+```mermaid
+graph LR
+    A["Claude Agent SDK<br/>OAuth/API"] <--> B["LiteLLM<br/>Translation"]
+    B <--> C["Open WebUI, Graphiti,<br/>LangChain, etc."]
 ```
 
 ## Available Image
@@ -56,7 +53,7 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
    cp .env.example .env
    ```
 
-3. **Set your master key** (REQUIRED):
+2. **Set your master key** (REQUIRED):
    ```bash
    # Edit .env and update LITELLM_MASTER_KEY
    LITELLM_MASTER_KEY=sk-your-desired-custom-key
@@ -64,10 +61,10 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
 
    See [Security Guide](docs/SECURITY.md) for key generation best practices
 
-4. **Get your Claude OAuth token** (wherever you have Claude Code installed):
+3. **Get your Claude OAuth token** (wherever you have Claude Code installed):
    ```bash
    # If you don't have the Claude CLI installed:
-   npm install -g @anthropic-ai/claude-agent-sdk
+   npm install -g @anthropic-ai/claude-code
 
    # Generate a long-lived token
    claude setup-token
@@ -77,18 +74,18 @@ based on our [Claude Code SDK Docker images](https://github.com/cabinlab/claude-
    ```
 
 
-5. **Add the token to your .env file**:
+4. **Add the token to your .env file**:
    ```bash
    # Edit .env and add your token:
    CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-your-token-here
    ```
 
-6. **Start the services**:
+5. **Start the services**:
    ```bash
    docker-compose up -d
    ```
 
-7. **Verify it's working**:
+6. **Verify it's working**:
 
    ### Web UI
    Navigate to `http://localhost:4000/ui/` and select Test Key:
@@ -139,7 +136,7 @@ docker-compose restart litellm
 1. **Long-lived OAuth Tokens** (Recommended for Claude Pro/Max users)
    - Generate with `claude setup-token` on your host machine
    - Set `CLAUDE_CODE_OAUTH_TOKEN` in your `.env` file
-   - Tokens start with `sk-ant-oat01-` and last for 1 year
+   - Tokens start with `sk-ant-oat01-`
    - Authentication persists across container restarts via Docker volume
 
 2. **Interactive Authentication** (Alternative)
@@ -178,8 +175,12 @@ This ensures authentication persists across container restarts.
 
 ## Architecture
 
-```
-Client Application → LiteLLM Proxy → Claude Agent SDK Provider → Claude Agent SDK → Claude API
+```mermaid
+graph LR
+    A[Client App] --> B[LiteLLM Proxy]
+    B --> C[Claude Agent SDK Provider]
+    C --> D[Claude Agent SDK]
+    D --> E[Claude API]
 ```
 
 The provider:

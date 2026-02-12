@@ -80,6 +80,8 @@ curl -X POST http://localhost:4000/v1/chat/completions \
   }'
 ```
 
+> **Note:** The `temperature` parameter in this example is silently dropped due to `drop_params: true` in `litellm_config.yaml`. See [Parameter Handling](#parameter-handling) below.
+
 ## JavaScript/TypeScript
 
 ```javascript
@@ -111,10 +113,39 @@ main();
 4. **Features Supported**:
    - Chat completions (`/v1/chat/completions`)
    - Model listing (`/v1/models`)
-   - Standard OpenAI parameters (temperature, max_tokens, etc.)
+   - Streaming responses (`"stream": true`)
 
 5. **Features NOT Supported**:
    - Embeddings
+   - OpenAI-specific parameters (see [Parameter Handling](#parameter-handling) below)
+
+## Parameter Handling
+
+Because LiteLLM is configured with `drop_params: true` and the Claude Agent SDK manages its own parameters, most OpenAI-specific parameters are silently dropped.
+
+### Parameters that work
+
+| Parameter | Description |
+|-----------|-------------|
+| `model` | Model selection (`sonnet`, `opus`, `haiku`) |
+| `messages` | Conversation messages array |
+| `stream` | Enable streaming responses (`true`/`false`) |
+
+### Parameters silently dropped
+
+The following parameters are accepted without error but have **no effect**:
+
+| Parameter | Why |
+|-----------|-----|
+| `temperature` | Claude Agent SDK manages sampling internally |
+| `top_p` | Claude Agent SDK manages sampling internally |
+| `max_tokens` | Claude Agent SDK manages output length internally |
+| `frequency_penalty` | Not supported by Claude Agent SDK |
+| `presence_penalty` | Not supported by Claude Agent SDK |
+| `stop` | Not supported by Claude Agent SDK |
+| `tools` / `tool_choice` | Not supported through this provider |
+
+This is configured via `drop_params: true` in `config/litellm_config.yaml`. Without this setting, unsupported parameters would cause errors.
 
 
 ## Environment Variables for Your App

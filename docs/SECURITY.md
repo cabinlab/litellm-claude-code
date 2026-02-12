@@ -67,8 +67,8 @@ This system uses OAuth for Claude authentication (stored in Docker volume) and A
 To verify your security setup:
 
 ```bash
-# Check if custom key is set (should not show default)
-docker-compose exec litellm env | grep LITELLM_MASTER_KEY
+# Confirm the key is set (does not print the actual value)
+docker-compose exec litellm sh -c 'echo "LITELLM_MASTER_KEY is set (${#LITELLM_MASTER_KEY} chars)"'
 
 # Check startup logs for warnings
 docker-compose logs litellm | grep "WARNING"
