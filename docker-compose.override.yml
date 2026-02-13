@@ -6,3 +6,6 @@ services:
   litellm:
     build: .
     image: litellm-claude-local
+    volumes:
+      - ./config/litellm_config.yaml:/app/config/litellm_config.yaml:ro
+      - ./providers:/app/config/providers:ro

@@ -19,8 +19,6 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./config/litellm_config.yaml:/app/config/litellm_config.yaml:ro
-      - ./providers:/app/config/providers:ro
       - claude-auth:/home/claude/.claude
     env_file:
       - .env
